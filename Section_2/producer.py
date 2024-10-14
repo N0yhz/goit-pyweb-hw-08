@@ -12,10 +12,10 @@ def send_to_queue(contact_id):
     channel.basic_publish(
         exchange='',
         routing_key='email_queue', 
-        body=str(contact_id)
+        body=str(contact_id),
         )
     
-    print(f'[x] Contact {contact_id} sent to email queue')
+    print(f'[x] Contact {contact_id} sent to queue')
     connection.close()
 
 def generate_contacts(count):
@@ -25,10 +25,14 @@ def generate_contacts(count):
         email = fake.email()
         additional_data = fake.text(max_nb_chars=150)
 
-        contact = Contact(full_name=full_name, email=email, additional_data=additional_data)
+        contact = Contact(
+            full_name=full_name,
+            email=email,
+            additional_data=additional_data
+            )
         contact.save()
 
-        send_to_queue(contact.id)
+        send_to_queue('email_queue', contact.id)
 
 if __name__ == '__main__':
     n=10
