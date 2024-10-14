@@ -1,9 +1,12 @@
 import redis
 import json
+from redis_lru import RedisLRU
 from models import Author, Quote
 
 r = redis.Redis(host='localhost', port=6379, db=0)
+cache = RedisLRU(r)
 
+@cache
 def find_quotes_by_author(name):
 
     cache_key = f'name:{name}'
@@ -28,6 +31,7 @@ def find_quotes_by_author(name):
         else:
             print("Author not found")
 
+@cache
 def find_quotes_by_tag(tag):
 
     cache_key = f'tag:{tag}'
@@ -48,6 +52,7 @@ def find_quotes_by_tag(tag):
 
         r.set(cache_key, json.dumps(quotes_list), ex=300)
 
+@cache
 def find_quotes_by_tags(tags):
     tags_list = tags.split(',')
     quotes = Quote.objects(tags__in=tags_list)
